@@ -13,3 +13,7 @@ test/Test*.xlsm
 test/Test*.xlsx
 test/Test*.xltm
 test/Test*.xltx
+
+.aider*
+logs/
+vendor/
