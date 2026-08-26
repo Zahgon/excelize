@@ -340,6 +340,27 @@ func TestSetCellValue(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, expected, val)
 	}
+	t.Run("for_decimal_precision_overflow", func(t *testing.T) {
+		f := NewFile()
+		defer assert.NoError(t, f.Close())
+		for val, expected := range map[float64]string{
+			0.123456789012345678: "0.123456789012345",
+			-1234567890.12345678: "-1234567890.12345",
+			1234567890.1234:      "1234567890.1234",
+			1234567890.12345678:  "1234567890.12345",
+			123456789012345.67:   "123456789012345",
+			1234567890123456:     "1234567890123450",
+			9007199254740993.01:  "9007199254740990",
+		} {
+			assert.NoError(t, f.SetCellValue("Sheet1", "A1", val))
+			got, err := f.GetCellValue("Sheet1", "A1")
+			assert.NoError(t, err)
+			assert.Equal(t, expected, got)
+			got, err = f.GetCellValue("Sheet1", "A1", Options{RawCellValue: true})
+			assert.NoError(t, err)
+			assert.Equal(t, expected, got)
+		}
+	})
 }
 
 func TestSetCellBool(t *testing.T) {
